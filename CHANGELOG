@@ -1,8 +1,4 @@
-*0.0.3*
 
-* Added json gem dependency
-* Added a more flexible sentry system
-
-*0.0.1*
+*0.1*
 
 * First public release
