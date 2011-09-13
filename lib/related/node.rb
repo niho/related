@@ -3,13 +3,13 @@ module Related
     module QueryMethods
       def relationships
         query = self.query
-        query.entity_type = :relationships
+        query.result_type = :relationships
         query
       end
 
       def nodes
         query = self.query
-        query.entity_type = :nodes
+        query.result_type = :nodes
         query
       end
 
@@ -65,7 +65,9 @@ module Related
     class Query
       include QueryMethods
 
-      attr_writer :entity_type
+      attr_reader :result
+
+      attr_writer :result_type
       attr_writer :relationship_type
       attr_writer :direction
       attr_writer :limit
@@ -76,7 +78,7 @@ module Related
 
       def initialize(node)
         @node = node
-        @entity_type = :nodes
+        @result_type = :nodes
         @depth = 4
       end
 
@@ -89,24 +91,12 @@ module Related
       end
 
       def to_a
-        res = []
-        if @destination
-          res = self.send(@search_algorithm, [@node.id])
-          res.shift unless @include_start_node
-          return Related::Node.find(res)
+        perform_query unless @result
+        if @result_type == :nodes
+          Related::Node.find(@result)
         else
-          if @limit
-            res = (1..@limit.to_i).map { Related.redis.srandmember(key) }
-          else
-            res = Related.redis.smembers(key)
-          end
+          Related::Relationship.find(@result)
         end
-        res = Relationship.find(res)
-        if @entity_type == :nodes
-          res = Related::Node.find(res.map {|rel| @direction == :in ? rel.start_node_id : rel.end_node_id })
-          res.unshift(@node) if @include_start_node
-        end
-        res
       end
 
       def count
@@ -118,24 +108,63 @@ module Related
         @count || count
       end
 
+      def include?(entity)
+        if @destination
+          self.to_a.include?(entity)
+        else
+          if entity.is_a?(Related::Node)
+            @result_type = :nodes
+            Related.redis.sismember(key, entity.to_s)
+          elsif entity.is_a?(Related::Relationship)
+            @result_type = :relationships
+            Related.redis.sismember(key, entity.to_s)
+          end
+        end
+      end
+
+      def intersect(query)
+        @result_type = :nodes
+        @result = Related.redis.sinter(key, query.key)
+        self
+      end
+
     protected
 
-      def key
-        "#{@node.id}:rel:#{@relationship_type}:#{@direction}"
+      def key(node=nil)
+        if @result_type == :nodes
+          "#{node ? node.to_s : @node.to_s}:nodes:#{@relationship_type}:#{@direction}"
+        else
+          "#{node ? node.to_s : @node.to_s}:rel:#{@relationship_type}:#{@direction}"
+        end
       end
 
       def query
         self
       end
 
+      def perform_query
+        @result = []
+        if @destination
+          @result_type = :nodes
+          @result = self.send(@search_algorithm, [@node.id])
+          @result.shift unless @include_start_node
+          @result
+        else
+          if @limit
+            @result = (1..@limit.to_i).map { Related.redis.srandmember(key) }
+          else
+            @result = Related.redis.smembers(key)
+          end
+        end
+      end
+
       def depth_first(nodes, depth = 0)
         return [] if depth > @depth
         nodes.each do |node|
-          key = "#{node}:nodes:#{@relationship_type}:#{@direction}"
-          if Related.redis.sismember(key, @destination.id)
+          if Related.redis.sismember(key(node), @destination.id)
             return [node, @destination.id]
           else
-            res = depth_first(Related.redis.smembers(key), depth+1)
+            res = depth_first(Related.redis.smembers(key(node)), depth+1)
             return [node] + res unless res.empty?
           end
         end
@@ -146,11 +175,10 @@ module Related
         return [] if depth > @depth
         shortest_path = []
         nodes.each do |node|
-          key = "#{node}:nodes:#{@relationship_type}:#{@direction}"
-          if Related.redis.sismember(key, @destination.id)
+          if Related.redis.sismember(key(node), @destination.id)
             return [node, @destination.id]
           else
-            res = dijkstra(Related.redis.smembers(key), depth+1)
+            res = dijkstra(Related.redis.smembers(key(node)), depth+1)
             if res.size > 0
               res = [node] + res
               if res.size < shortest_path.size || shortest_path.size == 0
