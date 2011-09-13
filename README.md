@@ -56,11 +56,37 @@ To get the results from a query:
     node.outgoing(:friends).to_a
     node.outgoing(:friends).count (or .size, which is memoized)
 
-You can also do set operations, like union, diff and intersect (not implemented yet):
+You can also do set operations, like union, diff and intersect:
 
     node1.outgoing(:friends).union(node2.outgoing(:friends))
     node1.outgoing(:friends).diff(node2.outgoing(:friends))
     node1.outgoing(:friends).intersect(node2.outgoing(:friends))
+
+Follower
+--------
+
+Related includes a helper module called Related::Follower that you can include
+in your node sub-class to get basic Twitter-like follow functionality:
+
+    class User < Related::Node
+      include Related::Follower
+    end
+
+    user1 = User.create
+    user2 = User.create
+
+    user1.follow!(user2)
+    user1.unfollow!(user2)
+    user2.followers
+    user1.following
+    user1.friends
+    user2.followed_by?(user1)
+    user1.following?(user2)
+    user2.followers_count
+    user1.following_count
+
+The two nodes does not need to be of the same type. You can for example have
+a User following a Page or whatever makes sense in your app.
 
 Development
 -----------

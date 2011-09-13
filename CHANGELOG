@@ -1,4 +1,9 @@
 
+*0.2*
+
+* Implemented set operations.
+* Added Related::Follower module.
+
 *0.1*
 
 * First public release

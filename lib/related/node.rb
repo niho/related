@@ -122,6 +122,18 @@ module Related
         end
       end
 
+      def union(query)
+        @result_type = :nodes
+        @result = Related.redis.sunion(key, query.key)
+        self
+      end
+
+      def diff(query)
+        @result_type = :nodes
+        @result = Related.redis.sdiff(key, query.key)
+        self
+      end
+
       def intersect(query)
         @result_type = :nodes
         @result = Related.redis.sinter(key, query.key)

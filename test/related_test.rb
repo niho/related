@@ -200,4 +200,43 @@ class RelatedTest < Test::Unit::TestCase
     assert_equal [node1,node2,node5,node8], node1.shortest_path_to(node8).outgoing(:friends).depth(5).include_start_node.to_a
   end
 
+  def test_can_union
+    node1 = Related::Node.create
+    node2 = Related::Node.create
+    node3 = Related::Node.create
+    node4 = Related::Node.create
+    Related::Relationship.create(:friends, node1, node3)
+    Related::Relationship.create(:friends, node2, node4)
+    Related::Relationship.create(:friends, node2, node3)
+    nodes = node1.outgoing(:friends).union(node2.outgoing(:friends)).to_a
+    assert_equal 2, nodes.size
+    assert nodes.include?(node3)
+    assert nodes.include?(node4)
+  end
+  
+  def test_can_diff
+    node1 = Related::Node.create
+    node2 = Related::Node.create
+    node3 = Related::Node.create
+    node4 = Related::Node.create
+    Related::Relationship.create(:friends, node1, node3)
+    Related::Relationship.create(:friends, node2, node4)
+    Related::Relationship.create(:friends, node2, node3)
+    nodes = node2.outgoing(:friends).diff(node1.outgoing(:friends)).to_a
+    assert_equal 1, nodes.size
+    assert nodes.include?(node4)
+  end
+
+  def test_can_intersect
+    node1 = Related::Node.create
+    node2 = Related::Node.create
+    Related::Relationship.create(:friends, node1, node2)
+    Related::Relationship.create(:friends, node2, node1)
+    assert_equal [node2], node1.outgoing(:friends).intersect(node1.incoming(:friends)).to_a
+    assert_equal [node1], node2.outgoing(:friends).intersect(node2.incoming(:friends)).to_a
+    node3 = Related::Node.create
+    Related::Relationship.create(:friends, node1, node3)
+    assert_equal [node1], node2.incoming(:friends).intersect(node3.incoming(:friends)).to_a
+  end
+
 end
