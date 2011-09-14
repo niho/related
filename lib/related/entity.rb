@@ -49,6 +49,10 @@ module Related
           find_many(args.flatten, options)
       end
 
+      def as_json(options = {})
+        (attributes || {}).merge(:id => self.id)
+      end
+
     private
 
       def create_or_update
