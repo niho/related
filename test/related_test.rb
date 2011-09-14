@@ -131,7 +131,29 @@ class RelatedTest < Test::Unit::TestCase
     Related::Relationship.create(:friends, node1, node3)
     Related::Relationship.create(:friends, node1, node4)
     Related::Relationship.create(:friends, node1, node5)
-    assert_equal 3, node1.outgoing(:friends).limit(3).to_a.size
+    assert_equal 3, node1.outgoing(:friends).nodes.limit(3).to_a.size
+    assert_equal 3, node1.outgoing(:friends).relationships.limit(3).to_a.size
+  end
+
+  def test_can_paginate_the_results_from_a_query
+    node1 = Related::Node.create
+    node2 = Related::Node.create
+    node3 = Related::Node.create
+    node4 = Related::Node.create
+    node5 = Related::Node.create
+    rel1 = Related::Relationship.create(:friends, node1, node2)
+    sleep(1)
+    rel2 = Related::Relationship.create(:friends, node1, node3)
+    sleep(1)
+    rel3 = Related::Relationship.create(:friends, node1, node4)
+    sleep(1)
+    rel4 = Related::Relationship.create(:friends, node1, node5)
+    sleep(1)
+    rel5 = Related::Relationship.create(:friends, node1, node5)
+    assert_equal [rel1,rel2,rel3], node1.outgoing(:friends).relationships.per_page(3).page(1).to_a
+    assert_equal [rel4,rel5], node1.outgoing(:friends).relationships.per_page(3).page(2).to_a
+    assert_equal [rel2,rel3,rel4], node1.outgoing(:friends).relationships.per_page(3).page(rel1).to_a
+    assert_equal [rel4,rel5], node1.outgoing(:friends).relationships.per_page(3).page(rel3).to_a
   end
 
   def test_can_count_the_number_of_related_nodes
@@ -144,10 +166,14 @@ class RelatedTest < Test::Unit::TestCase
     rel1 = Related::Relationship.create(:friends, node1, node3)
     rel1 = Related::Relationship.create(:friends, node1, node4)
     rel1 = Related::Relationship.create(:friends, node1, node5)
-    assert_equal 4, node1.outgoing(:friends).count
-    assert_equal 4, node1.outgoing(:friends).size
-    assert_equal 3, node1.outgoing(:friends).limit(3).count
-    assert_equal 4, node1.outgoing(:friends).limit(5).count
+    assert_equal 4, node1.outgoing(:friends).nodes.count
+    assert_equal 4, node1.outgoing(:friends).nodes.size
+    assert_equal 3, node1.outgoing(:friends).nodes.limit(3).count
+    assert_equal 4, node1.outgoing(:friends).nodes.limit(5).count
+    assert_equal 4, node1.outgoing(:friends).relationships.count
+    assert_equal 4, node1.outgoing(:friends).relationships.size
+    assert_equal 3, node1.outgoing(:friends).relationships.limit(3).count
+    assert_equal 4, node1.outgoing(:friends).relationships.limit(5).count
   end
 
   def test_can_find_path_between_two_nodes

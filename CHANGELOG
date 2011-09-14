@@ -3,6 +3,7 @@
 
 * Implemented set operations.
 * Added Related::Follower module.
+* Added pagination support (sorted relationships).
 
 *0.1*
 

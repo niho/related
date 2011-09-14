@@ -33,6 +33,16 @@ module Related
         query
       end
 
+      def per_page(count)
+        self.limit(count)
+      end
+
+      def page(nr)
+        query = self.query
+        query.page = nr
+        query
+      end
+
       def depth(depth)
         query = self.query
         query.depth = depth
@@ -71,6 +81,7 @@ module Related
       attr_writer :relationship_type
       attr_writer :direction
       attr_writer :limit
+      attr_writer :page
       attr_writer :depth
       attr_writer :include_start_node
       attr_writer :destination
@@ -100,7 +111,9 @@ module Related
       end
 
       def count
-        @count = Related.redis.scard(key)
+        @count = @result_type == :nodes ?
+          Related.redis.scard(key) :
+          Related.redis.zcard(key)
         @limit && @count > @limit ? @limit : @count
       end
 
@@ -142,6 +155,19 @@ module Related
 
     protected
 
+      def page_start
+        if @page.nil? || @page.to_i.to_s == @page.to_s
+          @page && @page.to_i != 1 ? (@page.to_i * @limit.to_i) - @limit.to_i : 0
+        else
+          rel = @page.is_a?(String) ? Related::Relationship.find(@page) : @page
+          rel.rank + 1
+        end
+      end
+
+      def page_end
+        page_start + @limit.to_i - 1
+      end
+
       def key(node=nil)
         if @result_type == :nodes
           "#{node ? node.to_s : @node.to_s}:nodes:#{@relationship_type}:#{@direction}"
@@ -162,10 +188,18 @@ module Related
           @result.shift unless @include_start_node
           @result
         else
-          if @limit
-            @result = (1..@limit.to_i).map { Related.redis.srandmember(key) }
+          if @result_type == :nodes
+            if @limit
+              @result = (1..@limit.to_i).map { Related.redis.srandmember(key) }
+            else
+              @result = Related.redis.smembers(key)
+            end
           else
-            @result = Related.redis.smembers(key)
+            if @limit
+              @result = Related.redis.zrange(key, page_start, page_end)
+            else
+              @result = Related.redis.zrange(key, 0, -1)
+            end
           end
         end
       end
