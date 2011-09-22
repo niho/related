@@ -3,6 +3,16 @@ Related
 
 Related is a Redis-backed high performance graph database.
 
+Raison d'être
+-------------
+
+Related is meant to be a simple graph database that is fun, free and easy to
+use. The intention is not to compete with industrial grade graph databases
+like Neo4j, but rather to be a replacement for a relational database when your
+data is better described as a graph. For example when building social
+software. Related is meant to be web scale, but ultimately relies on the
+ability of Redis to scale (using Redis cluster for example).
+
 Setup
 -----
 
