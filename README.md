@@ -75,8 +75,8 @@ You can also do set operations, like union, diff and intersect:
 Relationships are sorted based on when they were created, which means you can
 paginate them:
 
-    node.outgoing(:friends).relationship.per_page(100).page(1)
-    node.outgoing(:friends).relationship.per_page(100).page(rel)
+    node.outgoing(:friends).relationships.per_page(100).page(1)
+    node.outgoing(:friends).relationships.per_page(100).page(rel)
 
 The second form paginates based on the id of the last relationship on the
 previous page. Useful for cases where explicit page numbers are not
