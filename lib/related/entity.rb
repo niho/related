@@ -53,6 +53,10 @@ module Related
         (attributes || {}).merge(:id => self.id)
       end
 
+      def to_json(options = {})
+        as_json.to_json(options)
+      end
+
     private
 
       def create_or_update

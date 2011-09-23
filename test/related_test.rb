@@ -265,11 +265,12 @@ class RelatedTest < Test::Unit::TestCase
     assert_equal [node1], node2.incoming(:friends).intersect(node3.incoming(:friends)).to_a
   end
 
-  def can_return_json
-    node = Related::Node.create
-    assert node.as_json[:id]
-    node.name = 'test'
-    assert_equal 'test', node.as_json[:name]
+  def test_can_return_json
+    node = Related::Node.create(:name => 'test')
+    json = { :node => node }.to_json
+    json = JSON.parse(json)
+    assert_equal node.id, json['node']['id']
+    assert_equal node.name, json['node']['name']
   end
 
 end
