@@ -273,4 +273,11 @@ class RelatedTest < Test::Unit::TestCase
     assert_equal node.name, json['node']['name']
   end
 
+  def test_timestamps
+    node = Related::Node.create.save
+    node = Related::Node.find(node.id)
+    assert_match /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, node.created_at
+    assert_match /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, node.updated_at
+  end
+
 end

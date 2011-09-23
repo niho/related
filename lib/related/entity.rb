@@ -65,13 +65,13 @@ module Related
 
       def create
         @id = Related.generate_id
-        @attributes.merge!(:created_at => Time.now.utc)
+        @attributes.merge!(:created_at => Time.now.utc.iso8601)
         Related.redis.hmset(@id, *@attributes.to_a.flatten)
         self
       end
 
       def update
-        @attributes.merge!(:updated_at => Time.now.utc)
+        @attributes.merge!(:updated_at => Time.now.utc.iso8601)
         Related.redis.hmset(@id, *@attributes.to_a.flatten)
         self
       end
