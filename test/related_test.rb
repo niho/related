@@ -290,4 +290,9 @@ class RelatedTest < Test::Unit::TestCase
     assert_match /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, node.updated_at
   end
 
+  def test_to_param
+    node = Related::Node.create
+    assert_equal node.id, node.to_param
+  end
+
 end

@@ -18,6 +18,10 @@ module Related
         self.id
       end
 
+      def to_param
+        self.id
+      end
+
       def method_missing(sym, *args, &block)
         @attributes[sym] || @attributes[sym.to_s]
       end
