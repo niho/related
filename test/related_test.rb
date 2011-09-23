@@ -273,6 +273,16 @@ class RelatedTest < Test::Unit::TestCase
     assert_equal node.name, json['node']['name']
   end
 
+  def test_query_can_return_json
+    node1 = Related::Node.create(:name => 'node1')
+    node2 = Related::Node.create(:name => 'node2')
+    Related::Relationship.create(:friends, node1, node2)
+    json = { :nodes => node1.outgoing(:friends) }.to_json
+    json = JSON.parse(json)
+    assert_equal node2.id, json['nodes'][0]['id']
+    assert_equal node2.name, json['nodes'][0]['name']
+  end
+
   def test_timestamps
     node = Related::Node.create.save
     node = Related::Node.find(node.id)

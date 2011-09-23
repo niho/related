@@ -153,6 +153,14 @@ module Related
         self
       end
 
+      def as_json(options = {})
+        self.to_a
+      end
+
+      def to_json(options = {})
+        self.as_json.to_json(options)
+      end
+
     protected
 
       def page_start
