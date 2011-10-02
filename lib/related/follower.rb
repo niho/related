@@ -1,12 +1,12 @@
 module Related
   module Follower
-    def follow!(user)
-      Related::Relationship.create(:follow, self, user)
+    def follow!(other)
+      Related::Relationship.create(:follow, self, other)
     end
 
-    def unfollow!(user)
+    def unfollow!(other)
       self.following.relationships.each do |rel|
-        if rel.end_node_id == user.id
+        if rel.end_node_id == other.id
           rel.destroy
         end
       end
@@ -24,12 +24,12 @@ module Related
       self.followers.intersect(self.following)
     end
 
-    def followed_by?(user)
-      self.followers.include?(user)
+    def followed_by?(other)
+      self.followers.include?(other)
     end
 
-    def following?(user)
-      self.following.include?(user)
+    def following?(other)
+      self.following.include?(other)
     end
 
     def followers_count
