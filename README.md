@@ -133,6 +133,8 @@ Related includes a helper module called Related::Follower that you can include
 in your node sub-class to get basic Twitter-like follow functionality:
 
 ```ruby
+require 'related/follower'
+
 class User < Related::Node
   include Related::Follower
 end
