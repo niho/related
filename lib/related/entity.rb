@@ -30,10 +30,13 @@ module Related
 
     def attributes
       @attributes ||= {}
-      @attributes.inject({}) { |memo,(k,v)|
+      self.class.properties.inject({}) { |memo,key|
+        memo[key.to_s] = nil
+        memo
+      }.merge(@attributes.inject({}) { |memo,(k,v)|
         memo[k.to_s] = v
         memo
-      }.merge('id' => self.id)
+      }.merge('id' => self.id))
     end
 
     def read_attribute(name)
@@ -48,7 +51,9 @@ module Related
 
     def has_attribute?(name)
       @attributes ||= {}
-      @attributes.has_key?(name.to_s) || @attributes.has_key?(name)
+      @attributes.has_key?(name.to_s) ||
+        @attributes.has_key?(name) ||
+        @properties.has_key?(name.to_sym)
     end
 
     def method_missing(sym, *args, &block)
@@ -107,9 +112,8 @@ module Related
       @properties[name.to_sym] = Serializer.new(klass, block)
     end
 
-    def self.property_serializer(property)
-      @properties ||= {}
-      @properties[property.to_sym]
+    def self.properties
+      @properties ? @properties.keys : []
     end
 
   private
@@ -203,6 +207,11 @@ module Related
       objects
     end
 
+    def self.property_serializer(property)
+      @properties ||= {}
+      @properties[property.to_sym]
+    end
+
     class Serializer
       def initialize(klass, block = nil)
         @klass = klass
@@ -230,7 +239,7 @@ module Related
           Time.parse(value)
         else
           value
-        end
+        end unless value.nil?
         @block ? @block.call(value) : value
       end
     end

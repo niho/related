@@ -122,6 +122,7 @@ the semantics and let Related do the conversion for you.
 
 ```ruby
 class Event < Related::Node
+  property :title, String
   property :attending_count, Integer
   property :popularity, Float
   property :start_date, DateTime
@@ -129,6 +130,15 @@ class Event < Related::Node
     "http://maps.google.com/maps?q=#{value}"
   end
 end
+```
+
+An additional benefit of defining properties like this is that they get
+included when you serialize the object to JSON or XML even when the attribute
+hasn't been set.
+
+```ruby
+event = Event.create(:title => 'Party!', :location => 'Stockholm')
+event.as_json # => {"title"=>nil,"attending_count"=>nil,"popularity"=>nil,"start_date"=>nil,"location"=>"http://maps.google.com/maps?q=Stockholm"}
 ```
 
 ActiveModel
