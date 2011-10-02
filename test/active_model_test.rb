@@ -51,6 +51,7 @@ class ActiveModelTest < ActiveModel::TestCase
   end
 
   def setup
+    Related.redis.flushall
     @model = Related::Entity.new
   end
 
