@@ -15,14 +15,13 @@ module Related
     attr_reader :id
     attr_reader :attributes
 
-    def initialize(*attributes)
-      if attributes.first.is_a?(String)
-        @id = attributes.first
-        @attributes = attributes.last
-      else
-        @attributes = attributes.first
+    def initialize(attributes = {})
+      @attributes = {}
+      attributes.each do |key,value|
+        serializer = self.class.property_serializer(key)
+        @attributes[key.to_s] = serializer ?
+          serializer.to_string(value) : value
       end
-      @attributes ||= {}
     end
 
     def to_s
@@ -54,9 +53,15 @@ module Related
 
     def method_missing(sym, *args, &block)
       if sym.to_s =~ /=$/
-        write_attribute(sym.to_s[0..-2], args.first)
+        name = sym.to_s[0..-2]
+        serializer = self.class.property_serializer(name)
+        write_attribute(name,
+          serializer ? serializer.to_string(args.first) :
+                       args.first)
       else
-        read_attribute(sym)
+        serializer = self.class.property_serializer(sym)
+        serializer ? serializer.from_string(read_attribute(sym)) :
+                     read_attribute(sym)
       end
     end
 
@@ -97,7 +102,23 @@ module Related
         find_many(args.flatten, options)
     end
 
+    def self.property(name, klass=nil, &block)
+      @properties ||= {}
+      @properties[name.to_sym] = Serializer.new(klass, block)
+    end
+
+    def self.property_serializer(property)
+      @properties ||= {}
+      @properties[property.to_sym]
+    end
+
   private
+
+    def load_attributes(id, attributes)
+      @id = id
+      @attributes = attributes
+      self
+    end
 
     def create_or_update
       run_callbacks :save do
@@ -154,7 +175,7 @@ module Related
           raise Related::NotFound, id
         end
       end
-      self.new(id, attributes)
+      self.new.send(:load_attributes, id, attributes)
     end
 
     def self.find_many(ids, options = {})
@@ -174,12 +195,44 @@ module Related
           res[i].each_with_index do |value, i|
             attributes[options[:fields][i]] = value
           end
-          objects << self.new(id, attributes)
+          objects << self.new.send(:load_attributes, id, attributes)
         else
-          objects << self.new(id, Hash[*res[i]])
+          objects << self.new.send(:load_attributes, id, Hash[*res[i]])
         end
       end
       objects
+    end
+
+    class Serializer
+      def initialize(klass, block = nil)
+        @klass = klass
+        @block = block
+      end
+
+      def to_string(value)
+        case @klass.to_s
+        when 'DateTime', 'Time'
+          value.iso8601
+        else
+          value.to_s
+        end
+      end
+
+      def from_string(value)
+        value = case @klass.to_s
+        when 'String'
+          value.to_s
+        when 'Integer'
+          value.to_i
+        when 'Float'
+          value.to_f
+        when 'DateTime', 'Time'
+          Time.parse(value)
+        else
+          value
+        end
+        @block ? @block.call(value) : value
+      end
     end
 
   end

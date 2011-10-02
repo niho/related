@@ -56,7 +56,7 @@ class RelatedTest < Test::Unit::TestCase
   end
 
   def test_two_nodes_with_the_same_id_should_be_equal
-    assert_equal Related::Node.new('test', {}), Related::Node.new('test', {})
+    assert_equal Related::Node.new.send(:load_attributes, 'test', {}), Related::Node.new.send(:load_attributes, 'test', {})
   end
 
   def test_can_find_a_node_and_only_load_specific_attributes

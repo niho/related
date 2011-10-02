@@ -111,6 +111,26 @@ like this to get a random selection of nodes:
 node.outgoing(:friends).nodes.limit(5)
 ```
 
+Properties
+----------
+
+All Node and Relationship attributes are stored as strings in Redis, but you
+can easily create your own subclass and define your own custom serialization
+behavior. You can either just override the getter and setter methods for the
+attribute you need to convert or you can use the `property` method to define
+the semantics and let Related do the conversion for you.
+
+```ruby
+class Event < Related::Node
+  property :attending_count, Integer
+  property :popularity, Float
+  property :start_date, DateTime
+  property :location do |value|
+    "http://maps.google.com/maps?q=#{value}"
+  end
+end
+```
+
 ActiveModel
 -----------
 
