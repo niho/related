@@ -138,7 +138,7 @@ hasn't been set.
 
 ```ruby
 event = Event.create(:title => 'Party!', :location => 'Stockholm')
-event.as_json # => {"title"=>nil,"attending_count"=>nil,"popularity"=>nil,"start_date"=>nil,"location"=>"http://maps.google.com/maps?q=Stockholm"}
+event.as_json # => {"title"=>"Party!","attending_count"=>nil,"popularity"=>nil,"start_date"=>nil,"location"=>"http://maps.google.com/maps?q=Stockholm"}
 ```
 
 ActiveModel
