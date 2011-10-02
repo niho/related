@@ -105,6 +105,27 @@ like this to get a random selection of nodes:
 node.outgoing(:friends).nodes.limit(5)
 ```
 
+ActiveModel
+-----------
+
+Related supports ActiveModel and includes some basic functionality in both
+nodes and relationships like validations, callbacks, JSON and XML
+serialization and translation support. You can easily extend your own sub
+classes with the custom ActiveModel functionality that you need.
+
+```ruby
+class Like < Related::Relationship
+  validates_presence_of :how_much
+  validates_numericality_of :how_much
+
+  after_save :invalidate_cache
+
+  def invalidate_cache
+    ...
+  end
+end
+```
+
 Follower
 --------
 

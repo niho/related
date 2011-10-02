@@ -1,6 +1,6 @@
 require 'redis'
 require 'redis/namespace'
-require 'json'
+require 'active_model'
 
 require 'related/version'
 require 'related/helpers'
