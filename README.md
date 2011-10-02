@@ -37,11 +37,17 @@ Example usage
 
 ```ruby
 node = Related::Node.create(:name => 'Example', :popularity => 2.3)
-node.new_record?
+node.new?
 node.popularity = 100
+node.attributes
+node.has_attribute?(:popularity)
+node.read_attribute(:popularity)
+node.write_attribute(:popularity, 50)
 node.save
+node.persisted?
 node = Related::Node.find(node.id)
 node.destroy
+node.destroyed?
 
 node1 = Related::Node.create
 node2 = Related::Node.create
