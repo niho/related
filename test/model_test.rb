@@ -32,4 +32,18 @@ class ModelTest < ActiveModel::TestCase
     assert event.as_json.has_key?('end_date')
   end
 
+  def test_model_factory
+    e1 = Event.create(:popularity => 0.0)
+    e2 = Event.create(:popularity => 1.0)
+    e1, e2 = Related::Node.find(e1.id, e2.id, :model =>
+      lambda {|attributes| attributes['popularity'].to_f > 0.5 ? Event : Related::Node })
+    assert_equal Related::Node, e1.class
+    assert_equal Event, e2.class
+
+    Related::Relationship.create(:test, e1, e2)
+    nodes = e1.outgoing(:test).nodes.options(:model =>
+      lambda {|attributes| attributes['popularity'].to_f > 0.5 ? Event : Related::Node }).to_a
+    assert_equal Event, nodes.first.class
+  end
+
 end

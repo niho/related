@@ -71,6 +71,7 @@ node.incoming(:friends)
 node.outgoing(:friends).relationships
 node.outgoing(:friends).nodes
 node.outgoing(:friends).limit(5)
+node.outgoing(:friends).options(:fields => ..., :model => ...)
 node1.path_to(node2).outgoing(:friends).depth(3)
 node1.shortest_path_to(node2).outgoing(:friends).depth(3)
 ```
@@ -139,6 +140,25 @@ hasn't been set.
 ```ruby
 event = Event.create(:title => 'Party!', :location => 'Stockholm')
 event.as_json # => {"title"=>"Party!","attending_count"=>nil,"popularity"=>nil,"start_date"=>nil,"location"=>"http://maps.google.com/maps?q=Stockholm"}
+```
+
+When querying the graph you may want the query to return the results as your
+custom model class instead of as a Related::Node or Related::Relationship.
+Related allows you to specify what model a specific node or relationship
+should be instantiated as based on its attributes.
+
+```ruby
+Related::Node.find(...,
+  :model => lambda {|attributes|
+    attributes['start_date'] ? Event : Related::Node
+  }
+)
+
+node.outgoing(:attending).options(
+  :model => lambda {|attributes|
+    attributes['start_date'] ? Event : Related::Node
+  }
+)
 ```
 
 ActiveModel

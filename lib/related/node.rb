@@ -13,6 +13,12 @@ module Related
         query
       end
 
+      def options(opt)
+        query = self.query
+        query.options = opt
+        query
+      end
+
       def outgoing(type)
         query = self.query
         query.relationship_type = type
@@ -86,11 +92,13 @@ module Related
       attr_writer :include_start_node
       attr_writer :destination
       attr_writer :search_algorithm
+      attr_writer :options
 
       def initialize(node)
         @node = node
         @result_type = :nodes
         @depth = 4
+        @options = {}
       end
 
       def each(&block)
@@ -104,9 +112,9 @@ module Related
       def to_a
         perform_query unless @result
         if @result_type == :nodes
-          Related::Node.find(@result)
+          Related::Node.find(@result, @options)
         else
-          Related::Relationship.find(@result)
+          Related::Relationship.find(@result, @options)
         end
       end
 

@@ -179,7 +179,8 @@ module Related
           raise Related::NotFound, id
         end
       end
-      self.new.send(:load_attributes, id, attributes)
+      klass = options[:model] ? options[:model].call(attributes) : self
+      klass.new.send(:load_attributes, id, attributes)
     end
 
     def self.find_many(ids, options = {})
@@ -199,9 +200,12 @@ module Related
           res[i].each_with_index do |value, i|
             attributes[options[:fields][i]] = value
           end
-          objects << self.new.send(:load_attributes, id, attributes)
+          klass = options[:model] ? options[:model].call(attributes) : self
+          objects << klass.new.send(:load_attributes, id, attributes)
         else
-          objects << self.new.send(:load_attributes, id, Hash[*res[i]])
+          attributes = Hash[*res[i]]
+          klass = options[:model] ? options[:model].call(attributes) : self
+          objects << klass.new.send(:load_attributes, id, attributes)
         end
       end
       objects
