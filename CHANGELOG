@@ -1,4 +1,10 @@
 
+*0.3*
+
+* ActiveModel support
+* Properties
+* Dynamic sub-class loading
+
 *0.2*
 
 * Implemented set operations.
