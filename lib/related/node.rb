@@ -46,6 +46,7 @@ module Related
       def page(nr)
         query = self.query
         query.page = nr
+        query.result_type = :relationships
         query
       end
 

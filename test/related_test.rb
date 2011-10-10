@@ -150,11 +150,11 @@ class RelatedTest < Test::Unit::TestCase
     rel4 = Related::Relationship.create(:friends, node1, node5, :name => 'rel4')
     sleep(1)
     rel5 = Related::Relationship.create(:friends, node1, node5, :name => 'rel5')
-    assert_equal [rel5,rel4,rel3], node1.outgoing(:friends).relationships.per_page(3).page(1).to_a
-    assert_equal [rel2,rel1], node1.outgoing(:friends).relationships.per_page(3).page(2).to_a
-    assert_equal [rel5,rel4,rel3], node1.outgoing(:friends).relationships.per_page(3).page(nil).to_a
-    assert_equal [rel4,rel3,rel2], node1.outgoing(:friends).relationships.per_page(3).page(rel5).to_a
-    assert_equal [rel2,rel1], node1.outgoing(:friends).relationships.per_page(3).page(rel3).to_a
+    assert_equal [rel5,rel4,rel3], node1.outgoing(:friends).per_page(3).page(1).to_a
+    assert_equal [rel2,rel1], node1.outgoing(:friends).per_page(3).page(2).to_a
+    assert_equal [rel5,rel4,rel3], node1.outgoing(:friends).per_page(3).page(nil).to_a
+    assert_equal [rel4,rel3,rel2], node1.outgoing(:friends).per_page(3).page(rel5).to_a
+    assert_equal [rel2,rel1], node1.outgoing(:friends).per_page(3).page(rel3).to_a
   end
 
   def test_can_count_the_number_of_related_nodes
