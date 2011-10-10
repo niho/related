@@ -1,6 +1,8 @@
 module Related
   class Relationship < Entity
 
+    validates_presence_of :label, :start_node_id, :end_node_id
+
     def initialize(*attributes)
       if attributes.first.is_a?(String)
         @id = attributes.first

@@ -273,4 +273,16 @@ class RelatedTest < Test::Unit::TestCase
     assert_match /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, node.updated_at
   end
 
+  def test_should_require_a_relationship_to_have_a_label_start_node_and_end_node
+    assert_raises Related::ValidationsFailed do
+      Related::Relationship.create(nil, 'x', 'y')
+    end
+    assert_raises Related::ValidationsFailed do
+      Related::Relationship.create(:friend, nil, 'y')
+    end
+    assert_raises Related::ValidationsFailed do
+      Related::Relationship.create(:friend, 'x', nil)
+    end
+  end
+
 end

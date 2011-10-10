@@ -3,7 +3,7 @@ require File.expand_path('test/test_helper')
 class ActiveModelTest < ActiveModel::TestCase
   include ActiveModel::Lint::Tests
 
-  class Like < Related::Relationship
+  class Like < Related::Entity
     validates_numericality_of :how_much, :allow_nil => true
 
     before_save :before_save_callback
