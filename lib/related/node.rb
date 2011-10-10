@@ -186,9 +186,9 @@ module Related
 
       def key(node=nil)
         if @result_type == :nodes
-          "#{node ? node.to_s : @node.to_s}:nodes:#{@relationship_type}:#{@direction}"
+          "#{node ? node.to_s : @node.to_s}:n:#{@relationship_type}:#{@direction}"
         else
-          "#{node ? node.to_s : @node.to_s}:rel:#{@relationship_type}:#{@direction}"
+          "#{node ? node.to_s : @node.to_s}:r:#{@relationship_type}:#{@direction}"
         end
       end
 
