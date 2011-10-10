@@ -285,4 +285,13 @@ class RelatedTest < Test::Unit::TestCase
     end
   end
 
+  def test_root
+    assert_kind_of Related::Node, Related.root
+    node = Related::Node.create
+    rel = Related::Relationship.create(:friend, Related.root, node)
+    assert_equal [node], Related.root.outgoing(:friend).to_a
+    Related.root.name = 'Test'
+    Related.root.save
+  end
+
 end

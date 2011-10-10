@@ -8,6 +8,7 @@ require 'related/exceptions'
 require 'related/entity'
 require 'related/node'
 require 'related/relationship'
+require 'related/root'
 
 module Related
   include Helpers

@@ -112,6 +112,26 @@ like this to get a random selection of nodes:
 node.outgoing(:friends).nodes.limit(5)
 ```
 
+The root node
+-------------
+
+Related provides a special kind of node called the "root" node. It's always
+accessible using the `Related.root` helper and you can create a relationship
+between any node and the root node, which is useful if you want to easily
+access a set of nodes without knowing the IDs of those nodes.
+
+```ruby
+Related::Relationship.create(:example, Related.root, node)
+Related.root.outgoing(:example)
+```
+
+You can even add attributes to the root node if you want.
+
+```ruby
+Related.root.name = 'The root'
+Related.root.save
+```
+
 Properties
 ----------
 

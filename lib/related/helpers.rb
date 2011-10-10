@@ -11,5 +11,10 @@ module Related
       ).gsub('/','x').gsub('+','y').gsub('=','').strip
     end
 
+    # Returns the root node for the graph
+    def root
+      @root ||= Related::Root.new
+    end
+
   end
 end
