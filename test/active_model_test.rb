@@ -85,6 +85,11 @@ class ActiveModelTest < ActiveModel::TestCase
     assert_raises Related::ValidationsFailed do
       like.save
     end
+    begin
+      like.save
+    rescue Related::ValidationsFailed => e
+      assert_equal like, e.object
+    end
     like.how_much = 1.0
     assert_equal true, like.valid?
     assert_nothing_raised do
