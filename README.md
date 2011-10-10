@@ -193,9 +193,11 @@ generated for a relationship.
 
 ```ruby
 class Comment < Related::Relationship
+  property :created_at, Time
+  property :points, Integer
   weight do |direction|
     if direction == :in
-      self.created_at.to_i
+      self.created_at
     elsif direction == :out
       self.points
     end
