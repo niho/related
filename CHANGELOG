@@ -1,4 +1,10 @@
 
+*0.4*
+
+* Related.root
+* Custom relationship weights
+* More compact key format
+
 *0.3*
 
 * ActiveModel support
