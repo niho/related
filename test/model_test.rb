@@ -12,6 +12,12 @@ class ModelTest < ActiveModel::TestCase
     end
   end
 
+  class Like < Related::Relationship
+    weight do |dir|
+      dir == :in ? in_score : out_score
+    end
+  end
+
   def setup
     Related.redis.flushall
   end
@@ -44,6 +50,32 @@ class ModelTest < ActiveModel::TestCase
     nodes = e1.outgoing(:test).nodes.options(:model =>
       lambda {|attributes| attributes['popularity'].to_f > 0.5 ? Event : Related::Node }).to_a
     assert_equal Event, nodes.first.class
+  end
+
+  def test_custom_weight
+    node1 = Related::Node.create
+    node2 = Related::Node.create
+    like = Like.create(:like, node1, node2, :in_score => 42, :out_score => 10)
+    assert_equal 42, like.weight(:in)
+    assert_equal 10, like.weight(:out)
+    like.in_score = 50
+    like.save
+    assert_equal 50, like.weight(:in)
+    assert_equal 10, like.weight(:out)
+  end
+
+  def test_weight_sorting
+    node1 = Related::Node.create
+    node2 = Related::Node.create
+    node3 = Related::Node.create
+    rel1 = Like.create(:like, node1, node2, :in_score => 1, :out_score => 1)
+    rel2 = Like.create(:like, node1, node3, :in_score => 2, :out_score => 2)
+    rel3 = Like.create(:like, node2, node1, :in_score => 1, :out_score => 1)
+    rel4 = Like.create(:like, node3, node1, :in_score => 2, :out_score => 2)
+    assert_equal [rel2,rel1], node1.outgoing(:like).relationships.options(:model => lambda { Like }).to_a
+    assert_equal [rel4,rel3], node1.incoming(:like).relationships.options(:model => lambda { Like }).to_a
+    assert_equal [rel1], node1.outgoing(:like).relationships.options(:model => lambda { Like }).per_page(2).page(rel2).to_a
+    assert_equal [rel3], node1.incoming(:like).relationships.options(:model => lambda { Like }).per_page(2).page(rel4).to_a
   end
 
 end

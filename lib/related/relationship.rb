@@ -18,8 +18,16 @@ module Related
       @end_node ||= Related::Node.find(end_node_id)
     end
 
-    def rank
-      Related.redis.zrevrank("#{self.start_node_id}:r:#{self.label}:out", self.id)
+    def rank(direction)
+      Related.redis.zrevrank(r_key(direction), self.id)
+    end
+
+    def weight(direction)
+      Related.redis.zscore(r_key(direction), self.id).to_i
+    end
+
+    def self.weight(&block)
+      @weight = block
     end
 
     def self.create(label, node1, node2, attributes = {})
@@ -32,26 +40,58 @@ module Related
 
   private
 
+    def r_key(direction)
+      if direction.to_sym == :out
+        "#{self.start_node_id}:r:#{self.label}:out"
+      elsif direction.to_sym == :in
+        "#{self.end_node_id}:r:#{self.label}:in"
+      end
+    end
+
+    def n_key(direction)
+      if direction.to_sym == :out
+        "#{self.start_node_id}:n:#{self.label}:out"
+      elsif direction.to_sym == :in
+        "#{self.end_node_id}:n:#{self.label}:in"
+      end
+    end
+
+    def self.weight_for(relationship, direction)
+      if @weight
+        relationship.instance_exec(direction, &@weight).to_i
+      else
+        Time.parse(relationship.created_at).to_i
+      end
+    end
+
     def create
       Related.redis.multi do
         super
-        score = Time.now.to_i
-        Related.redis.zadd("#{self.start_node_id}:r:#{self.label}:out", score, self.id)
-        Related.redis.zadd("#{self.end_node_id}:r:#{self.label}:in", score, self.id)
+        Related.redis.zadd(r_key(:out), self.class.weight_for(self, :out), self.id)
+        Related.redis.zadd(r_key(:in), self.class.weight_for(self, :in), self.id)
+        Related.redis.sadd(n_key(:out), self.end_node_id)
+        Related.redis.sadd(n_key(:in), self.start_node_id)
+      end
+      self
+    end
 
-        Related.redis.sadd("#{self.start_node_id}:n:#{self.label}:out", self.end_node_id)
-        Related.redis.sadd("#{self.end_node_id}:n:#{self.label}:in", self.start_node_id)
+    def update
+      Related.redis.multi do
+        super
+        Related.redis.zadd(r_key(:out), self.class.weight_for(self, :out), self.id)
+        Related.redis.zadd(r_key(:in), self.class.weight_for(self, :in), self.id)
+        Related.redis.sadd(n_key(:out), self.end_node_id)
+        Related.redis.sadd(n_key(:in), self.start_node_id)
       end
       self
     end
 
     def delete
       Related.redis.multi do
-        Related.redis.zrem("#{self.start_node_id}:r:#{self.label}:out", self.id)
-        Related.redis.zrem("#{self.end_node_id}:r:#{self.label}:in", self.id)
-
-        Related.redis.srem("#{self.start_node_id}:n:#{self.label}:out", self.end_node_id)
-        Related.redis.srem("#{self.end_node_id}:n:#{self.label}:in", self.start_node_id)
+        Related.redis.zrem(r_key(:out), self.id)
+        Related.redis.zrem(r_key(:in), self.id)
+        Related.redis.srem(n_key(:out), self.end_node_id)
+        Related.redis.srem(n_key(:in), self.start_node_id)
         super
       end
       self

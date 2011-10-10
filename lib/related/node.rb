@@ -177,7 +177,7 @@ module Related
           @page && @page.to_i != 1 ? (@page.to_i * @limit.to_i) - @limit.to_i : 0
         else
           rel = @page.is_a?(String) ? Related::Relationship.find(@page) : @page
-          rel.rank + 1
+          rel.rank(@direction) + 1
         end
       end
 

@@ -181,6 +181,40 @@ node.outgoing(:attending).options(
 )
 ```
 
+Weight
+------
+
+All relationships have an associated weight on its incoming and outgoing
+links. By default the weight is set to the time when the relationship was
+created. That makes the result from a query that fetches relationships always
+sorted so that newer relationships appear first, which is nice. If you create
+a custom Related::Relationship sub-class you can define how the weight is
+generated for a relationship.
+
+```ruby
+class Comment < Related::Relationship
+  weight do |direction|
+    if direction == :in
+      self.created_at.to_i
+    elsif direction == :out
+      self.points
+    end
+  end
+end
+```
+
+The weight is always an integer and is sorted in descending order.
+
+The weight for the links get updated every time the relationship is saved. So
+if you update the points for a Comment in the example above, the weight is
+automatically updated. You can access the weight and rank (0 based position)
+of a relationship like this:
+
+```ruby
+comment.weight(:out)
+comment.rank(:in)
+```
+
 ActiveModel
 -----------
 

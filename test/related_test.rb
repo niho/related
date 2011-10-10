@@ -102,9 +102,9 @@ class RelatedTest < Test::Unit::TestCase
   def test_can_create_a_relationship_with_attributes
     node1 = Related::Node.create(:name => 'One')
     node2 = Related::Node.create(:name => 'Two')
-    rel = Related::Relationship.create(:friends, node1, node2, :weight => 2.5)
+    rel = Related::Relationship.create(:friends, node1, node2, :score => 2.5)
     rel = Related::Relationship.find(rel.id)
-    assert_equal '2.5', rel.weight
+    assert_equal '2.5', rel.score
   end
 
   def test_can_delete_a_relationship
@@ -141,6 +141,7 @@ class RelatedTest < Test::Unit::TestCase
     node3 = Related::Node.create
     node4 = Related::Node.create
     node5 = Related::Node.create
+    node6 = Related::Node.create
     rel1 = Related::Relationship.create(:friends, node1, node2, :name => 'rel1')
     sleep(1)
     rel2 = Related::Relationship.create(:friends, node1, node3, :name => 'rel2')
@@ -149,7 +150,7 @@ class RelatedTest < Test::Unit::TestCase
     sleep(1)
     rel4 = Related::Relationship.create(:friends, node1, node5, :name => 'rel4')
     sleep(1)
-    rel5 = Related::Relationship.create(:friends, node1, node5, :name => 'rel5')
+    rel5 = Related::Relationship.create(:friends, node1, node6, :name => 'rel5')
     assert_equal [rel5,rel4,rel3], node1.outgoing(:friends).per_page(3).page(1).to_a
     assert_equal [rel2,rel1], node1.outgoing(:friends).per_page(3).page(2).to_a
     assert_equal [rel5,rel4,rel3], node1.outgoing(:friends).per_page(3).page(nil).to_a
