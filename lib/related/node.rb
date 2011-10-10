@@ -212,9 +212,9 @@ module Related
             end
           else
             if @limit
-              @result = Related.redis.zrange(key, page_start, page_end)
+              @result = Related.redis.zrevrange(key, page_start, page_end)
             else
-              @result = Related.redis.zrange(key, 0, -1)
+              @result = Related.redis.zrevrange(key, 0, -1)
             end
           end
         end

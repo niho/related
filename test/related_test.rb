@@ -141,19 +141,20 @@ class RelatedTest < Test::Unit::TestCase
     node3 = Related::Node.create
     node4 = Related::Node.create
     node5 = Related::Node.create
-    rel1 = Related::Relationship.create(:friends, node1, node2)
+    rel1 = Related::Relationship.create(:friends, node1, node2, :name => 'rel1')
     sleep(1)
-    rel2 = Related::Relationship.create(:friends, node1, node3)
+    rel2 = Related::Relationship.create(:friends, node1, node3, :name => 'rel2')
     sleep(1)
-    rel3 = Related::Relationship.create(:friends, node1, node4)
+    rel3 = Related::Relationship.create(:friends, node1, node4, :name => 'rel3')
     sleep(1)
-    rel4 = Related::Relationship.create(:friends, node1, node5)
+    rel4 = Related::Relationship.create(:friends, node1, node5, :name => 'rel4')
     sleep(1)
-    rel5 = Related::Relationship.create(:friends, node1, node5)
-    assert_equal [rel1,rel2,rel3], node1.outgoing(:friends).relationships.per_page(3).page(1).to_a
-    assert_equal [rel4,rel5], node1.outgoing(:friends).relationships.per_page(3).page(2).to_a
-    assert_equal [rel2,rel3,rel4], node1.outgoing(:friends).relationships.per_page(3).page(rel1).to_a
-    assert_equal [rel4,rel5], node1.outgoing(:friends).relationships.per_page(3).page(rel3).to_a
+    rel5 = Related::Relationship.create(:friends, node1, node5, :name => 'rel5')
+    assert_equal [rel5,rel4,rel3], node1.outgoing(:friends).relationships.per_page(3).page(1).to_a
+    assert_equal [rel2,rel1], node1.outgoing(:friends).relationships.per_page(3).page(2).to_a
+    assert_equal [rel5,rel4,rel3], node1.outgoing(:friends).relationships.per_page(3).page(nil).to_a
+    assert_equal [rel4,rel3,rel2], node1.outgoing(:friends).relationships.per_page(3).page(rel5).to_a
+    assert_equal [rel2,rel1], node1.outgoing(:friends).relationships.per_page(3).page(rel3).to_a
   end
 
   def test_can_count_the_number_of_related_nodes

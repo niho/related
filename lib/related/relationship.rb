@@ -17,7 +17,7 @@ module Related
     end
 
     def rank
-      Related.redis.zrank("#{self.start_node_id}:rel:#{self.label}:out", self.id)
+      Related.redis.zrevrank("#{self.start_node_id}:rel:#{self.label}:out", self.id)
     end
 
     def self.create(label, node1, node2, attributes = {})
