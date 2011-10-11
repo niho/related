@@ -45,6 +45,9 @@ class RelatedTest < Test::Unit::TestCase
     assert_raises Related::NotFound do
       Related::Node.find('foo')
     end
+    assert_raises Related::NotFound do
+      Related::Node.find(nil)
+    end
   end
 
   def test_can_update_node_with_new_attributes

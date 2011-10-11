@@ -102,7 +102,7 @@ module Related
 
     def self.find(*args)
       options = args.size > 1 && args.last.is_a?(Hash) ? args.pop : {}
-      args.size == 1 && args.first.is_a?(String) ?
+      args.size == 1 && !args.first.is_a?(Array) ?
         find_one(args.first, options) :
         find_many(args.flatten, options)
     end
