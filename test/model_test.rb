@@ -72,10 +72,10 @@ class ModelTest < ActiveModel::TestCase
     rel2 = Like.create(:like, node1, node3, :in_score => 2, :out_score => 2)
     rel3 = Like.create(:like, node2, node1, :in_score => 1, :out_score => 1)
     rel4 = Like.create(:like, node3, node1, :in_score => 2, :out_score => 2)
-    assert_equal [rel2,rel1], node1.outgoing(:like).relationships.options(:model => lambda { Like }).to_a
-    assert_equal [rel4,rel3], node1.incoming(:like).relationships.options(:model => lambda { Like }).to_a
-    assert_equal [rel1], node1.outgoing(:like).relationships.options(:model => lambda { Like }).per_page(2).page(rel2).to_a
-    assert_equal [rel3], node1.incoming(:like).relationships.options(:model => lambda { Like }).per_page(2).page(rel4).to_a
+    assert_equal [rel2,rel1], node1.outgoing(:like).relationships.options(:model => lambda {|a| Like }).to_a
+    assert_equal [rel4,rel3], node1.incoming(:like).relationships.options(:model => lambda {|a| Like }).to_a
+    assert_equal [rel1], node1.outgoing(:like).relationships.options(:model => lambda {|a| Like }).per_page(2).page(rel2).to_a
+    assert_equal [rel3], node1.incoming(:like).relationships.options(:model => lambda {|a| Like }).per_page(2).page(rel4).to_a
   end
 
 end
