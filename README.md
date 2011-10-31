@@ -268,6 +268,69 @@ user1.following_count
 The two nodes does not need to be of the same type. You can for example have
 a User following a Page or whatever makes sense in your app.
 
+Real-time Stream Processing
+---------------------------
+
+When working with graphs you often want to take the rich and interconnected
+web of data and actually do something with it. Stream processing is a powerful
+and flexible way to do that. It allows you to implement complex graph
+algorithms in a scalable way that is also easy to understand and work with.
+
+Stream processing in Related works by defining a data flow that new or
+existing data will be streamed through. A data flow is triggered when a
+Relationship is created, updated or deleted. You setup data flows for
+different relationship types, so for example when a "friend" relationship
+between two nodes is created or updated that relationship will be
+automatically sent through the data flows you have defined for the "friend"
+type.
+
+A data flow can consist of one or more steps and can branch out in a tree.
+You define the steps for a data flow using a simple Hash syntax.
+
+```ruby
+Related.data_flow :comment, Tokenize => { CountWords => { TotalSum => nil, MovingAverage => nil } }
+```
+
+In the example above a new comment will first sent to the Tokenize step that
+will split the comment text into words. The list of words will then
+automatically be sent to the CountWords step that will count the number of
+unique words. That number will then be sent to both the TotalSum step that
+adds the number to a global counter as well as the MovingAverage step that
+will calculate and store a moving average. The nil indicates the end of the
+data flow. You can define as many data flows for a relationship type as you
+want.
+
+A data flow step is simply a Ruby class that responds to the `process` message
+and takes a single argument that holds the input data. Any data yielded from
+the process method will be automatically sent to the next step in the data
+flow. The only limitation is that the data sent between steps is a Hash and
+only contains JSON serializable data. The first step in the data flow will
+receive the Relationship object that triggered it as a Ruby hash with all of
+its attributes.
+
+```ruby
+class Tokenize
+  def self.process(data)
+    data['text'].split(' ').each do |word|
+      yield({ :word => word })
+    end
+  end
+end
+```
+
+To actually run the data flows you have defined you need to start one or more
+data flow workers. Related uses Resque which supplies persistent queues and
+reliable workers. If you don't have Resque required in your application
+Related will simply run the work flow directly in process instead which can
+be useful when testing, but is not recommended for production.
+
+To start a stream processor:
+
+    $ QUEUE=related rake resque:work
+
+You can start as many stream processors as you may need to scale
+up.
+
 Development
 -----------
 

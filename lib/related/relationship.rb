@@ -72,6 +72,7 @@ module Related
         Related.redis.sadd(n_key(:out), self.end_node_id)
         Related.redis.sadd(n_key(:in), self.start_node_id)
       end
+      Related.execute_data_flow(self.label, self)
       self
     end
 
@@ -83,6 +84,7 @@ module Related
         Related.redis.sadd(n_key(:out), self.end_node_id)
         Related.redis.sadd(n_key(:in), self.start_node_id)
       end
+      Related.execute_data_flow(self.label, self)
       self
     end
 
@@ -94,6 +96,7 @@ module Related
         Related.redis.srem(n_key(:in), self.start_node_id)
         super
       end
+      Related.execute_data_flow(self.label, self)
       self
     end
 

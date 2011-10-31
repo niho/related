@@ -9,9 +9,11 @@ require 'related/entity'
 require 'related/node'
 require 'related/relationship'
 require 'related/root'
+require 'related/data_flow'
 
 module Related
   include Helpers
+  include DataFlow
   extend self
 
   # Accepts:
