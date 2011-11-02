@@ -144,6 +144,18 @@ module Related
         end
       end
 
+      def find(node)
+        if @result_type == :nodes
+          if Related.redis.sismember(key, node.to_s)
+            Related::Node.find(node.to_s, @options)
+          end
+        else
+          if id = Related.redis.get(dir_key(node))
+            Related::Relationship.find(id, @options)
+          end
+        end
+      end
+
       def union(query)
         @result_type = :nodes
         @result = Related.redis.sunion(key, query.key)
@@ -190,6 +202,14 @@ module Related
           "#{node ? node.to_s : @node.to_s}:n:#{@relationship_type}:#{@direction}"
         else
           "#{node ? node.to_s : @node.to_s}:r:#{@relationship_type}:#{@direction}"
+        end
+      end
+
+      def dir_key(node)
+        if @direction == :out
+          "#{@node.to_s}:#{@relationship_type}:#{node.to_s}"
+        elsif @direction == :in
+          "#{node.to_s}:#{@relationship_type}:#{@node.to_s}"
         end
       end
 

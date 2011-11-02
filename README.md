@@ -72,6 +72,7 @@ node.outgoing(:friends).relationships
 node.outgoing(:friends).nodes
 node.outgoing(:friends).limit(5)
 node.outgoing(:friends).options(:fields => ..., :model => ...)
+node1.outgoing(:friends).relationships.find(node2)
 node1.path_to(node2).outgoing(:friends).depth(3)
 node1.shortest_path_to(node2).outgoing(:friends).depth(3)
 ```

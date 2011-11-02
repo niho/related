@@ -5,11 +5,8 @@ module Related
     end
 
     def unfollow!(other)
-      self.following.relationships.each do |rel|
-        if rel.end_node_id == other.id
-          rel.destroy
-        end
-      end
+      rel = self.following.relationships.find(other)
+      rel.destroy if rel
     end
 
     def followers

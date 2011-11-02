@@ -56,6 +56,10 @@ module Related
       end
     end
 
+    def dir_key
+      "#{self.start_node_id}:#{self.label}:#{self.end_node_id}"
+    end
+
     def self.weight_for(relationship, direction)
       if @weight
         relationship.instance_exec(direction, &@weight).to_i
@@ -71,6 +75,7 @@ module Related
         Related.redis.zadd(r_key(:in), self.class.weight_for(self, :in), self.id)
         Related.redis.sadd(n_key(:out), self.end_node_id)
         Related.redis.sadd(n_key(:in), self.start_node_id)
+        Related.redis.set(dir_key, self.id)
       end
       Related.execute_data_flow(self.label, self)
       self
@@ -81,8 +86,6 @@ module Related
         super
         Related.redis.zadd(r_key(:out), self.class.weight_for(self, :out), self.id)
         Related.redis.zadd(r_key(:in), self.class.weight_for(self, :in), self.id)
-        Related.redis.sadd(n_key(:out), self.end_node_id)
-        Related.redis.sadd(n_key(:in), self.start_node_id)
       end
       Related.execute_data_flow(self.label, self)
       self
@@ -94,6 +97,7 @@ module Related
         Related.redis.zrem(r_key(:in), self.id)
         Related.redis.srem(n_key(:out), self.end_node_id)
         Related.redis.srem(n_key(:in), self.start_node_id)
+        Related.redis.del(dir_key)
         super
       end
       Related.execute_data_flow(self.label, self)

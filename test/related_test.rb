@@ -298,4 +298,18 @@ class RelatedTest < Test::Unit::TestCase
     Related.root.save
   end
 
+  def test_find
+    node1 = Related::Node.create
+    node2 = Related::Node.create
+    rel = Related::Relationship.create(:friend, node1, node2)
+    assert_equal node2, node1.outgoing(:friend).find(node2)
+    assert_equal node1, node2.incoming(:friend).find(node1)
+    assert_equal nil, node1.outgoing(:friend).find(node1)
+    assert_equal nil, node2.incoming(:friend).find(node2)
+    assert_equal rel, node1.outgoing(:friend).relationships.find(node2)
+    assert_equal rel, node2.incoming(:friend).relationships.find(node1)
+    assert_equal nil, node1.outgoing(:friend).relationships.find(node1)
+    assert_equal nil, node2.incoming(:friend).relationships.find(node2)
+  end
+
 end
