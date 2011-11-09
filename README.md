@@ -43,6 +43,10 @@ node.attributes
 node.has_attribute?(:popularity)
 node.read_attribute(:popularity)
 node.write_attribute(:popularity, 50)
+node.increment!(:popularity, 10)
+node.decrement!(:popularity, 10)
+Related::Node.increment!(node, :popularity, 10)
+Related::Node.decrement!(node, :popularity, 10)
 node.save
 node.persisted?
 node = Related::Node.find(node.id)

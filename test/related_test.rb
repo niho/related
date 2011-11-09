@@ -312,4 +312,13 @@ class RelatedTest < Test::Unit::TestCase
     assert_equal nil, node2.incoming(:friend).relationships.find(node2)
   end
 
+  def test_can_increment_and_decrement
+    node = Related::Node.create(:test => 1)
+    assert_equal 1, Related::Node.find(node.id).test.to_i
+    node.increment!(:test, 5)
+    assert_equal 6, Related::Node.find(node.id).test.to_i
+    node.decrement!(:test, 4)
+    assert_equal 2, Related::Node.find(node.id).test.to_i
+  end
+
 end

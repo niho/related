@@ -116,6 +116,24 @@ module Related
       @properties ? @properties.keys : []
     end
 
+    def self.increment!(id, attribute, by = 1)
+      raise Related::NotFound if id.blank?
+      Related.redis.hincrby(id.to_s, attribute.to_s, by.to_i)
+    end
+
+    def self.decrement!(id, attribute, by = 1)
+      raise Related::NotFound if id.blank?
+      Related.redis.hincrby(id.to_s, attribute.to_s, -by.to_i)
+    end
+
+    def increment!(attribute, by = 1)
+      self.class.increment!(@id, attribute, by)
+    end
+
+    def decrement!(attribute, by = 1)
+      self.class.decrement!(@id, attribute, by)
+    end
+
   private
 
     def load_attributes(id, attributes)
