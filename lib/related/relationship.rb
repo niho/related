@@ -23,7 +23,15 @@ module Related
     end
 
     def weight(direction)
-      Related.redis.zscore(r_key(direction), self.id).to_i
+      Related.redis.zscore(r_key(direction), self.id).to_f
+    end
+
+    def increment_weight!(direction, by = 1)
+      Related.redis.zincrby(r_key(direction), by.to_f, self.id)
+    end
+
+    def decrement_weight!(direction, by = 1)
+      Related.redis.zincrby(r_key(direction), -by.to_f, self.id)
     end
 
     def self.weight(&block)
@@ -64,7 +72,7 @@ module Related
       if @weight
         relationship.instance_exec(direction, &@weight).to_i
       else
-        Time.parse(relationship.created_at).to_i
+        Time.now.to_f
       end
     end
 
@@ -82,11 +90,7 @@ module Related
     end
 
     def update
-      Related.redis.multi do
-        super
-        Related.redis.zadd(r_key(:out), self.class.weight_for(self, :out), self.id)
-        Related.redis.zadd(r_key(:in), self.class.weight_for(self, :in), self.id)
-      end
+      super
       Related.execute_data_flow(self.label, self)
       self
     end

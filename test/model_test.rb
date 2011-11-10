@@ -58,10 +58,6 @@ class ModelTest < ActiveModel::TestCase
     like = Like.create(:like, node1, node2, :in_score => 42, :out_score => 10)
     assert_equal 42, like.weight(:in)
     assert_equal 10, like.weight(:out)
-    like.in_score = 50
-    like.save
-    assert_equal 50, like.weight(:in)
-    assert_equal 10, like.weight(:out)
   end
 
   def test_weight_sorting

@@ -321,4 +321,20 @@ class RelatedTest < Test::Unit::TestCase
     assert_equal 2, Related::Node.find(node.id).test.to_i
   end
 
+  def test_can_increment_and_decrement_relationship_weights
+    node1 = Related::Node.create
+    node2 = Related::Node.create
+    rel = Related::Relationship.create(:friend, node1, node2)
+    original_in_weight = Related::Relationship.find(rel.id).weight(:in)
+    rel.increment_weight!(:in, 4.2)
+    assert_equal original_in_weight + 4.2, Related::Relationship.find(rel.id).weight(:in)
+    rel.decrement_weight!(:in, 2.2)
+    assert_equal original_in_weight + 2.0, Related::Relationship.find(rel.id).weight(:in)
+    original_out_weight = Related::Relationship.find(rel.id).weight(:out)
+    rel.increment_weight!(:out, 5.2)
+    assert_equal original_out_weight + 5.2, Related::Relationship.find(rel.id).weight(:out)
+    rel.decrement_weight!(:out, 4.2)
+    assert_equal original_out_weight + 1.0, Related::Relationship.find(rel.id).weight(:out)
+  end
+
 end

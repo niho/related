@@ -210,12 +210,21 @@ class Comment < Related::Relationship
 end
 ```
 
-The weight is always an integer and is sorted in descending order.
+The weight is always a double precision floating point number and is sorted in
+descending order.
 
-The weight for the links get updated every time the relationship is saved. So
-if you update the points for a Comment in the example above, the weight is
-automatically updated. You can access the weight and rank (0 based position)
-of a relationship like this:
+To change the weight an existing relationship you can use the
+`increment_weight!` and `decrement_weight!` methods. They are atomic, which
+means that you can have any number of clients updating the weight
+simultaneously without conflict.
+
+```ruby
+comment.increment_weight!(:out, 4.2)
+comment.decrement_weight!(:in, 4.2)
+```
+
+You can access the current weight and rank (0 based position) of a
+relationship like this:
 
 ```ruby
 comment.weight(:out)
