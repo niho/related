@@ -5,6 +5,7 @@ $LOAD_PATH.unshift dir + '/../lib'
 require 'rubygems'
 require 'test/unit'
 require 'related'
+require 'redis/distributed'
 
 #
 # make sure we can run redis
@@ -33,11 +34,20 @@ at_exit do
 
   pid = `ps -A -o pid,command | grep [r]edis-test`.split(" ")[0]
   puts "Killing test redis server..."
-  `rm -f #{dir}/dump.rdb`
+  `rm -f #{dir}/dump*.rdb`
   Process.kill("KILL", pid.to_i)
   exit exit_code
 end
 
-puts "Starting redis for testing at localhost:9736..."
-`redis-server #{dir}/redis-test.conf`
-Related.redis = 'localhost:9736'
+puts "Starting redis for testing..."
+
+`redis-server #{dir}/redis-test-1.conf`
+`redis-server #{dir}/redis-test-2.conf`
+`redis-server #{dir}/redis-test-3.conf`
+`redis-server #{dir}/redis-test-4.conf`
+
+Related.redis = Redis::Distributed.new %w[
+  redis://localhost:6379
+  redis://localhost:6380
+  redis://localhost:6381
+  redis://localhost:6382]
