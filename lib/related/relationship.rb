@@ -77,14 +77,14 @@ module Related
     end
 
     def create
-      Related.redis.multi do
+      #Related.redis.multi do
         super
         Related.redis.zadd(r_key(:out), self.class.weight_for(self, :out), self.id)
         Related.redis.zadd(r_key(:in), self.class.weight_for(self, :in), self.id)
         Related.redis.sadd(n_key(:out), self.end_node_id)
         Related.redis.sadd(n_key(:in), self.start_node_id)
         Related.redis.set(dir_key, self.id)
-      end
+      #end
       Related.execute_data_flow(self.label, self)
       self
     end
@@ -96,14 +96,14 @@ module Related
     end
 
     def delete
-      Related.redis.multi do
+      #Related.redis.multi do
         Related.redis.zrem(r_key(:out), self.id)
         Related.redis.zrem(r_key(:in), self.id)
         Related.redis.srem(n_key(:out), self.end_node_id)
         Related.redis.srem(n_key(:in), self.start_node_id)
         Related.redis.del(dir_key)
         super
-      end
+      #end
       Related.execute_data_flow(self.label, self)
       self
     end

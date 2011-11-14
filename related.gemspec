@@ -4,8 +4,8 @@ require 'related/version'
 Gem::Specification.new do |s|
   s.name        = 'related'
   s.version     = Related::Version
-  s.summary     = 'Related is a Redis-backed high performance graph database.'
-  s.description = 'Related is a Redis-backed high performance graph database.'
+  s.summary     = 'Related is a Redis-backed high performance distributed graph database.'
+  s.description = 'Related is a Redis-backed high performance distributed graph database.'
 
   s.author      = 'Niklas Holmgren'
   s.email       = 'niklas@sutajio.se'

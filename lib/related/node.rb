@@ -162,17 +162,50 @@ module Related
         self
       end
 
+      def union_with_distributed_fallback(query)
+        union_without_distributed_fallback(query)
+      rescue Redis::Distributed::CannotDistribute
+        s1 = Related.redis.smembers(key)
+        s2 = Related.redis.smembers(query.key)
+        @result = s1 | s2
+        self
+      end
+
+      alias_method_chain :union, :distributed_fallback
+
       def diff(query)
         @result_type = :nodes
         @result = Related.redis.sdiff(key, query.key)
         self
       end
 
+      def diff_with_distributed_fallback(query)
+        diff_without_distributed_fallback(query)
+      rescue Redis::Distributed::CannotDistribute
+        s1 = Related.redis.smembers(key)
+        s2 = Related.redis.smembers(query.key)
+        @result = s1 - s2
+        self
+      end
+
+      alias_method_chain :diff, :distributed_fallback
+
       def intersect(query)
         @result_type = :nodes
         @result = Related.redis.sinter(key, query.key)
         self
       end
+
+      def intersect_with_distributed_fallback(query)
+        intersect_without_distributed_fallback(query)
+      rescue Redis::Distributed::CannotDistribute
+        s1 = Related.redis.smembers(key)
+        s2 = Related.redis.smembers(query.key)
+        @result = s1 & s2
+        self
+      end
+
+      alias_method_chain :intersect, :distributed_fallback
 
       def as_json(options = {})
         self.to_a

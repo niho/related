@@ -202,14 +202,12 @@ module Related
     end
 
     def self.find_many(ids, options = {})
-      res = Related.redis.pipelined do
-        ids.each {|id|
-          if options[:fields]
-            Related.redis.hmget(id.to_s, *options[:fields])
-          else
-            Related.redis.hgetall(id.to_s)
-          end
-        }
+      res = pipelined_fetch(ids) do |id|
+        if options[:fields]
+          Related.redis.hmget(id.to_s, *options[:fields])
+        else
+          Related.redis.hgetall(id.to_s)
+        end
       end
       objects = []
       ids.each_with_index do |id,i|
@@ -221,12 +219,24 @@ module Related
           klass = options[:model] ? options[:model].call(attributes) : self
           objects << klass.new.send(:load_attributes, id, attributes)
         else
-          attributes = Hash[*res[i]]
+          attributes = res[i].is_a?(Array) ? Hash[*res[i]] : res[i]
           klass = options[:model] ? options[:model].call(attributes) : self
           objects << klass.new.send(:load_attributes, id, attributes)
         end
       end
       objects
+    end
+
+    def self.pipelined_fetch(ids, &block)
+      Related.redis.pipelined do
+        ids.each do |id|
+          block.call(id)
+        end
+      end
+    rescue Redis::Distributed::CannotDistribute
+      ids.map do |id|
+        block.call(id)
+      end
     end
 
     def self.property_serializer(property)

@@ -34,12 +34,15 @@ at_exit do
 
   pid = `ps -A -o pid,command | grep [r]edis-test`.split(" ")[0]
   puts "Killing test redis server..."
-  `rm -f #{dir}/dump*.rdb`
+  `rm -f #{dir}/*.rdb`
   Process.kill("KILL", pid.to_i)
   exit exit_code
 end
 
 puts "Starting redis for testing..."
+
+# `redis-server #{dir}/redis-test-1.conf`
+# Related.redis = 'localhost:6379'
 
 `redis-server #{dir}/redis-test-1.conf`
 `redis-server #{dir}/redis-test-2.conf`
@@ -50,4 +53,5 @@ Related.redis = Redis::Distributed.new %w[
   redis://localhost:6379
   redis://localhost:6380
   redis://localhost:6381
-  redis://localhost:6382]
+  redis://localhost:6382],
+  :tag => /^related:([^:]+)/

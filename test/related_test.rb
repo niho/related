@@ -9,8 +9,10 @@ class RelatedTest < Test::Unit::TestCase
   def test_can_set_a_namespace_through_a_url_like_string
     assert Related.redis
     assert_equal :related, Related.redis.namespace
+    old_redis = Related.redis
     Related.redis = 'localhost:9736/namespace'
     assert_equal 'namespace', Related.redis.namespace
+    Related.redis = old_redis
   end
 
   def test_can_create_node

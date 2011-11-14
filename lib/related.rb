@@ -21,7 +21,7 @@ module Related
   #   2. A 'hostname:port:db' string (to select the Redis db)
   #   3. A 'hostname:port/namespace' string (to set the Redis namespace)
   #   4. A redis URL string 'redis://host:port'
-  #   5. An instance of `Redis`, `Redis::Client`, `Redis::DistRedis`,
+  #   5. An instance of `Redis`, `Redis::Client`, `Redis::Distributed`,
   #      or `Redis::Namespace`.
   def redis=(server)
     if server.respond_to? :split

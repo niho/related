@@ -1,7 +1,7 @@
 Related
 =======
 
-Related is a Redis-backed high performance graph database.
+Related is a Redis-backed high performance distributed graph database.
 
 Raison d'être
 -------------
@@ -344,6 +344,41 @@ To start a stream processor:
 
 You can start as many stream processors as you may need to scale
 up.
+
+Distributed cluster setup
+-------------------------
+
+It is easy to use Related in a distributed cluster setup. As of writing this
+(November 2011) Redis Cluster is not yet ready for production use, but is
+expected for Redis 3.0 sometime in 2012. Redis Cluster will then be the
+preferred solution as it will allow you to setup up a dynamic cluster that can
+re-configure on the fly. If you don't need to add or remove machines for the
+cluster you can still use Related in a distributed setup right now using the
+consistent hashing client Redis::Distributed which is included in the "redis"
+gem.
+
+```ruby
+Related.redis = Redis::Distributed.new %w[
+  redis://redis-1.example.com
+  redis://redis-2.example.com
+  redis://redis-3.example.com
+  redis://redis-4.example.com,
+  :tag => /^related:([^:]+)/
+```
+
+The regular expression supplied in the `:tag` option tells Redis::Distributed
+how to distribute keys between the different machines. The regexp in the
+example is the recommended way of setting it up as it will partition the key
+space based on the Related ID part of the key, in effect localizing all data
+directly related to a specific node on a single machine. This is generally
+good both for reliability (if a machine goes down, it only takes down a part
+of the graph) and speed (set operations on relationships originating from the
+same node can be done on the server side, which is a lot faster, for example).
+
+You could also specify a regexp like `/:(n|r):/` that will locate all
+relationships on the same machine, making set operations on relationships
+a lot faster overall. But with the obvious drawback that the total size of
+your graph will be limited by that single machine.
 
 Development
 -----------
