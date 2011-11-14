@@ -362,7 +362,7 @@ Related.redis = Redis::Distributed.new %w[
   redis://redis-1.example.com
   redis://redis-2.example.com
   redis://redis-3.example.com
-  redis://redis-4.example.com,
+  redis://redis-4.example.com],
   :tag => /^related:([^:]+)/
 ```
 
