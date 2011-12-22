@@ -7,6 +7,7 @@ module Related
     include ActiveModel::Serializers::JSON
     include ActiveModel::Serializers::Xml
     include ActiveModel::Translation
+    include ActiveModel::AttributeMethods
 
     self.include_root_in_json = false
 
