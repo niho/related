@@ -7,12 +7,14 @@ Raison d'être
 -------------
 
 Related is meant to be a simple graph database that is fun, free and easy to
-use. The intention is not to compete with industrial grade graph databases
-like Neo4j, but rather to be a replacement for a relational database when your
-data is better described as a graph. For example when building social
-software. Related is meant to be web scale, but ultimately relies on the
-ability of Redis to scale (using Redis cluster for example). Read more about
-the philosophy behind Related in the
+use. The intention is not to compete with "real" graph databases like Neo4j,
+but rather to be a replacement for a relational database when your data is
+better described as a graph. For example when building social software.
+Related is very similar in scope and functionality to Twitters FlockDB, but is
+among other things designed to be easier to setup and use. Related also has
+better documentation and is easier to hack on. The intention is to be web
+scale, but we ultimately rely on the ability of Redis to scale (using Redis
+Cluster for example). Read more about the philosophy behind Related in the
 [Wiki](http://github.com/sutajio/related/wiki).
 
 Setup
