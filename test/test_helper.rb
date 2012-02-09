@@ -32,10 +32,13 @@ at_exit do
     exit_code = Test::Unit::AutoRunner.run
   end
 
-  pid = `ps -A -o pid,command | grep [r]edis-test`.split(" ")[0]
   puts "Killing test redis server..."
+  loop do
+    pid = `ps -A -o pid,command | grep [r]edis-test`.split(" ")[0]
+    break if pid.nil?
+    Process.kill("KILL", pid.to_i)
+  end
   `rm -f #{dir}/*.rdb`
-  Process.kill("KILL", pid.to_i)
   exit exit_code
 end
 
