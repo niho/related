@@ -382,6 +382,37 @@ relationships on the same machine, making set operations on relationships
 a lot faster overall. But with the obvious drawback that the total size of
 your graph will be limited by that single machine.
 
+Using Related with another database
+-----------------------------------
+
+Related can easily be used together with other databases than Redis to store
+Node data. Relationships are always stored in Redis, but node data can often
+have characteristics that make Redis unsuitable (like large size).
+
+You can for example use Related together with the Ripple gem to store nodes
+in Riak:
+
+```ruby
+class CustomNode
+  include Ripple::Document
+  include Related::Node::QueryMethods
+
+  def query
+    Related::Node::Query.new(self)
+  end
+end
+```
+
+You can then use the `CustomNode` class as an ordinary Related graph Node and
+query the graph like usual:
+
+```ruby
+node1 = CustomNode.create
+node2 = CustomNode.create
+Related::Relationship.create(:friend, node1, node2)
+node1.shortest_path_to(node2).outgoing(:friend)
+```
+
 Development
 -----------
 
