@@ -113,7 +113,7 @@ module Related
       def to_a
         perform_query unless @result
         if @result_type == :nodes
-          Related::Node.find(@result, @options)
+          node_class.find(@result, @options)
         else
           Related::Relationship.find(@result, @options)
         end
@@ -134,7 +134,7 @@ module Related
         if @destination
           self.to_a.include?(entity)
         else
-          if entity.is_a?(Related::Node)
+          if entity.is_a?(node_class)
             @result_type = :nodes
             Related.redis.sismember(key, entity.to_s)
           elsif entity.is_a?(Related::Relationship)
@@ -147,7 +147,7 @@ module Related
       def find(node)
         if @result_type == :nodes
           if Related.redis.sismember(key, node.to_s)
-            Related::Node.find(node.to_s, @options)
+            node_class.find(node.to_s, @options)
           end
         else
           if id = Related.redis.get(dir_key(node))
@@ -216,6 +216,10 @@ module Related
       end
 
     protected
+
+      def node_class
+        @node.class
+      end
 
       def page_start
         if @page.nil? || @page.to_i.to_s == @page.to_s
