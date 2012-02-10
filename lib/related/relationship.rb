@@ -41,8 +41,8 @@ module Related
     def self.create(label, node1, node2, attributes = {})
       self.new(attributes.merge(
         :label => label,
-        :start_node_id => node1.to_s,
-        :end_node_id => node2.to_s
+        :start_node_id => node1.is_a?(String) ? node1 : (node1 ? node1.id : nil),
+        :end_node_id => node2.is_a?(String) ? node2 : (node2 ? node2.id : nil)
       )).save
     end
 

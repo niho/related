@@ -136,18 +136,18 @@ module Related
         else
           if entity.is_a?(node_class)
             @result_type = :nodes
-            Related.redis.sismember(key, entity.to_s)
+            Related.redis.sismember(key, entity.id)
           elsif entity.is_a?(Related::Relationship)
             @result_type = :relationships
-            Related.redis.sismember(key, entity.to_s)
+            Related.redis.sismember(key, entity.id)
           end
         end
       end
 
       def find(node)
         if @result_type == :nodes
-          if Related.redis.sismember(key, node.to_s)
-            node_class.find(node.to_s, @options)
+          if Related.redis.sismember(key, node.id)
+            node_class.find(node.id, @options)
           end
         else
           if id = Related.redis.get(dir_key(node))
@@ -235,18 +235,16 @@ module Related
       end
 
       def key(node=nil)
-        if @result_type == :nodes
-          "#{node ? node.to_s : @node.to_s}:n:#{@relationship_type}:#{@direction}"
-        else
-          "#{node ? node.to_s : @node.to_s}:r:#{@relationship_type}:#{@direction}"
-        end
+        n = node || @node
+        node_id = n.is_a?(String) ? n : n.id
+        "#{node_id}:#{@result_type == :nodes ? "n" : "r"}:#{@relationship_type}:#{@direction}"
       end
 
       def dir_key(node)
         if @direction == :out
-          "#{@node.to_s}:#{@relationship_type}:#{node.to_s}"
+          "#{@node.id}:#{@relationship_type}:#{node.id}"
         elsif @direction == :in
-          "#{node.to_s}:#{@relationship_type}:#{@node.to_s}"
+          "#{node.id}:#{@relationship_type}:#{@node.id}"
         end
       end
 
