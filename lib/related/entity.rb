@@ -8,6 +8,7 @@ module Related
     include ActiveModel::Serializers::Xml
     include ActiveModel::Translation
     include ActiveModel::AttributeMethods
+    include ActiveModel::Dirty
 
     self.include_root_in_json = false
 
@@ -38,6 +39,10 @@ module Related
         memo[k.to_s] = v
         memo
       }.merge('id' => self.id))
+    end
+
+    def attribute(name)
+      read_attribute(name)
     end
 
     def read_attribute(name)
