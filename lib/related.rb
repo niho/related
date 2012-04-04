@@ -46,7 +46,7 @@ module Related
   # create a new one.
   def redis
     return @redis if @redis
-    self.redis = 'localhost:6379'
+    self.redis = ENV['RELATED_REDIS_URL'] || ENV['REDIS_URL'] || 'localhost:6379'
     self.redis
   end
 
