@@ -203,7 +203,7 @@ module Related
           raise Related::NotFound, id
         end
       end
-      klass = options[:model] ? options[:model].call(attributes) : self
+      klass = get_model(options[:model], attributes)
       klass.new.send(:load_attributes, id, attributes)
     end
 
@@ -216,21 +216,28 @@ module Related
         end
       end
       objects = []
+
       ids.each_with_index do |id,i|
         if options[:fields]
           attributes = {}
           res[i].each_with_index do |value, i|
             attributes[options[:fields][i]] = value
           end
-          klass = options[:model] ? options[:model].call(attributes) : self
+          klass = get_model(options[:model], attributes)
           objects << klass.new.send(:load_attributes, id, attributes)
         else
           attributes = res[i].is_a?(Array) ? Hash[*res[i]] : res[i]
-          klass = options[:model] ? options[:model].call(attributes) : self
+          klass = get_model(options[:model], attributes)
           objects << klass.new.send(:load_attributes, id, attributes)
         end
       end
       objects
+    end
+
+    def self.get_model(model, attributes)
+      return self unless model
+
+      model.is_a?(Proc) ? model.call(attributes) : model
     end
 
     def self.pipelined_fetch(ids, &block)
