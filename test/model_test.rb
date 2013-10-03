@@ -50,6 +50,9 @@ class ModelTest < ActiveModel::TestCase
     nodes = e1.outgoing(:test).nodes.options(:model =>
       lambda {|attributes| attributes['popularity'].to_f > 0.5 ? Event : Related::Node }).to_a
     assert_equal Event, nodes.first.class
+
+    nodes = Related::Node.find(e1.id, e2.id, model: Event)
+    assert_equal [Event, Event], nodes.map(&:class)
   end
 
   def test_custom_weight
