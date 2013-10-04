@@ -188,6 +188,13 @@ node.outgoing(:attending).options(
 )
 ```
 
+You can also specify a simple model class if you don't need to dynamically
+instantiate different model classes based on an attribute.
+
+````ruby
+Related::Node.find(..., :model => Event)
+```
+
 Weight
 ------
 
