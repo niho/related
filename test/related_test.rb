@@ -1,6 +1,6 @@
 require File.expand_path('test/test_helper')
 
-class RelatedTest < Test::Unit::TestCase
+class RelatedTest < MiniTest::Unit::TestCase
 
   def setup
     Related.redis.flushall

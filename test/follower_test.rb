@@ -5,7 +5,7 @@ class User < Related::Node
   include Related::Follower
 end
 
-class FollowerTest < Test::Unit::TestCase
+class FollowerTest < MiniTest::Unit::TestCase
 
   def setup
     Related.redis.flushall

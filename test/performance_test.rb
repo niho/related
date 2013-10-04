@@ -1,7 +1,7 @@
 require File.expand_path('test/test_helper')
 require 'benchmark'
 
-class PerformanceTest < Test::Unit::TestCase
+class PerformanceTest < MiniTest::Unit::TestCase
 
   def setup
     Related.redis.flushall
