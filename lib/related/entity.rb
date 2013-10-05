@@ -17,8 +17,13 @@ module Related
     attr_reader :id
     attr_reader :attributes
 
+    validates_with CheckRedisUniqueness, on: :create
+
     def initialize(attributes = {})
       @attributes = {}
+
+      @_internal_id = attributes.delete(:id) || Related.generate_id
+
       attributes.each do |key,value|
         serializer = self.class.property_serializer(key)
         @attributes[key.to_s] = serializer ?
@@ -156,9 +161,8 @@ module Related
 
     def create
       run_callbacks :create do
-        raise Related::ValidationsFailed, self unless valid?
-        @id = Related.generate_id
-        @attributes ||= {}
+        raise Related::ValidationsFailed, self unless valid?(:create)
+        @id = @_internal_id
         @attributes.merge!('created_at' => Time.now.utc.iso8601)
         Related.redis.hmset(@id, *@attributes.to_a.flatten)
       end
@@ -167,8 +171,7 @@ module Related
 
     def update
       run_callbacks :update do
-        raise Related::ValidationsFailed, self unless valid?
-        @attributes ||= {}
+        raise Related::ValidationsFailed, self unless valid?(:update)
         @attributes.merge!('updated_at' => Time.now.utc.iso8601)
         Related.redis.hmset(@id, *@attributes.to_a.flatten)
       end
