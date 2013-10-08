@@ -256,7 +256,20 @@ module Related
 
     def self.property_serializer(property)
       @properties ||= {}
-      @properties[property.to_sym]
+      serializer = @properties[property.to_sym]
+
+      # give us back something that acts like a serializer
+      return NullSerializer.new(property.to_sym) unless serializer
+
+      serializer
+    end
+
+    def deserialize(key, value)
+      self.class.property_serializer(key).from_string(value)
+    end
+
+    def serialize(key, value)
+      self.class.property_serializer(key).to_string(value)
     end
 
     class Serializer
@@ -291,5 +304,10 @@ module Related
       end
     end
 
+    class NullSerializer < Serializer
+      def from_string(value)
+        value
+      end
+    end
   end
 end
