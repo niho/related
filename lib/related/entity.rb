@@ -25,9 +25,7 @@ module Related
       @_internal_id = attributes.delete(:id) || Related.generate_id
 
       attributes.each do |key,value|
-        serializer = self.class.property_serializer(key)
-        @attributes[key.to_s] = serializer ?
-          serializer.to_string(value) : value
+        @attributes[key.to_s] = serialize(key, value)
       end
     end
 
@@ -146,10 +144,10 @@ module Related
     end
 
   private
-
     def load_attributes(id, attributes)
-      @id = id
+      @id = deserialize "id", id
       @attributes = attributes
+
       self
     end
 
@@ -164,7 +162,8 @@ module Related
         raise Related::ValidationsFailed, self unless valid?(:create)
         @id = @_internal_id
         @attributes.merge!('created_at' => Time.now.utc.iso8601)
-        Related.redis.hmset(@id, *@attributes.to_a.flatten)
+
+        Related.redis.hmset(@id, *@attributes.to_a)
       end
       self
     end
@@ -173,7 +172,8 @@ module Related
       run_callbacks :update do
         raise Related::ValidationsFailed, self unless valid?(:update)
         @attributes.merge!('updated_at' => Time.now.utc.iso8601)
-        Related.redis.hmset(@id, *@attributes.to_a.flatten)
+
+        Related.redis.hmset(@id, *@attributes.to_a)
       end
       self
     end
@@ -282,6 +282,8 @@ module Related
         case @klass.to_s
         when 'DateTime', 'Time'
           value.iso8601
+        when 'Array'
+          value.to_json
         else
           value.to_s
         end
@@ -295,11 +297,14 @@ module Related
           value.to_i
         when 'Float'
           value.to_f
+        when 'Array'
+          (value.is_a? Array) ? value : JSON.parse(value)
         when 'DateTime', 'Time'
-          Time.parse(value)
+          (value.is_a? Time) ? value : Time.parse(value)
         else
           value
         end unless value.nil?
+
         @block ? @block.call(value) : value
       end
     end
