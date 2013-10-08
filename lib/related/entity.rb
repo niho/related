@@ -226,13 +226,12 @@ module Related
           res[i].each_with_index do |value, i|
             attributes[options[:fields][i]] = value
           end
-          klass = get_model(options[:model], attributes)
-          objects << klass.new.send(:load_attributes, id, attributes)
         else
           attributes = res[i].is_a?(Array) ? Hash[*res[i]] : res[i]
-          klass = get_model(options[:model], attributes)
-          objects << klass.new.send(:load_attributes, id, attributes)
         end
+
+        klass = get_model(options[:model], attributes)
+        objects << klass.new.send(:load_attributes, id, attributes)
       end
       objects
     end
