@@ -4,9 +4,7 @@ module Related
     validates_presence_of :label, :start_node_id, :end_node_id
 
     def initialize(*attributes)
-      if attributes.first.is_a?(String)
-        @id = attributes.first
-      end
+      @_internal_id = attributes.first.is_a?(String) ? attributes.first : Related.generate_id
       @attributes = attributes.last
     end
 
