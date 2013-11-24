@@ -2,9 +2,9 @@
 dir = File.dirname(File.expand_path(__FILE__))
 $LOAD_PATH.unshift dir + '/../lib'
 
-gem 'minitest'
 require 'rubygems'
-require 'minitest/unit'
+require 'bundler/setup'
+require 'test/unit'
 require 'related'
 require 'redis/distributed'
 
