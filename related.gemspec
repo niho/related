@@ -6,6 +6,7 @@ Gem::Specification.new do |s|
   s.version     = Related::Version
   s.summary     = 'Related is a Redis-backed high performance distributed graph database.'
   s.description = 'Related is a Redis-backed high performance distributed graph database.'
+  s.license     = 'MIT'
 
   s.author      = 'Niklas Holmgren'
   s.email       = 'niklas@sutajio.se'
