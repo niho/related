@@ -24,4 +24,5 @@ Gem::Specification.new do |s|
   s.add_dependency('redis',  '> 2.0.0')
   s.add_dependency('redis-namespace',  '> 0.8.0')
   s.add_dependency('activemodel')
+  s.add_dependency('activemodel-serializers-xml')
 end
