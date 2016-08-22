@@ -1,6 +1,7 @@
 require 'redis'
 require 'redis/namespace'
 require 'active_model'
+require 'activemodel-serializers-xml'
 
 require 'related/version'
 require 'related/helpers'
