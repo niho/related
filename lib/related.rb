@@ -25,7 +25,7 @@ module Related
   #   5. An instance of `Redis`, `Redis::Client`, `Redis::Distributed`,
   #      or `Redis::Namespace`.
   def redis=(server)
-    if server.respond_to? :split
+    if server.is_a? String
       if server =~ /redis\:\/\//
         redis = Redis.connect(:url => server)
       else
