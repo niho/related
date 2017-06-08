@@ -25,9 +25,7 @@ module Related
       @_internal_id = attributes.delete(:id) || Related.generate_id
 
       attributes.each do |key,value|
-        serializer = self.class.property_serializer(key)
-        @attributes[key.to_s] = serializer ?
-          serializer.to_string(value) : value
+        @attributes[key.to_s] = serialize(key, value)
       end
     end
 
@@ -146,10 +144,10 @@ module Related
     end
 
   private
-
     def load_attributes(id, attributes)
-      @id = id
+      @id = deserialize "id", id
       @attributes = attributes
+
       self
     end
 
@@ -164,7 +162,8 @@ module Related
         raise Related::ValidationsFailed, self unless valid?(:create)
         @id = @_internal_id
         @attributes.merge!('created_at' => Time.now.utc.iso8601)
-        Related.redis.hmset(@id, *@attributes.to_a.flatten)
+
+        Related.redis.hmset(@id, *@attributes.to_a)
       end
       self
     end
@@ -173,7 +172,8 @@ module Related
       run_callbacks :update do
         raise Related::ValidationsFailed, self unless valid?(:update)
         @attributes.merge!('updated_at' => Time.now.utc.iso8601)
-        Related.redis.hmset(@id, *@attributes.to_a.flatten)
+
+        Related.redis.hmset(@id, *@attributes.to_a)
       end
       self
     end
@@ -226,13 +226,12 @@ module Related
           res[i].each_with_index do |value, i|
             attributes[options[:fields][i]] = value
           end
-          klass = get_model(options[:model], attributes)
-          objects << klass.new.send(:load_attributes, id, attributes)
         else
           attributes = res[i].is_a?(Array) ? Hash[*res[i]] : res[i]
-          klass = get_model(options[:model], attributes)
-          objects << klass.new.send(:load_attributes, id, attributes)
         end
+
+        klass = get_model(options[:model], attributes)
+        objects << klass.new.send(:load_attributes, id, attributes)
       end
       objects
     end
@@ -257,7 +256,20 @@ module Related
 
     def self.property_serializer(property)
       @properties ||= {}
-      @properties[property.to_sym]
+      serializer = @properties[property.to_sym]
+
+      # give us back something that acts like a serializer
+      return NullSerializer.new(property.to_sym) unless serializer
+
+      serializer
+    end
+
+    def deserialize(key, value)
+      self.class.property_serializer(key).from_string(value)
+    end
+
+    def serialize(key, value)
+      self.class.property_serializer(key).to_string(value)
     end
 
     class Serializer
@@ -270,6 +282,8 @@ module Related
         case @klass.to_s
         when 'DateTime', 'Time'
           value.iso8601
+        when 'Array'
+          value.to_json
         else
           value.to_s
         end
@@ -283,14 +297,22 @@ module Related
           value.to_i
         when 'Float'
           value.to_f
+        when 'Array'
+          (value.is_a? Array) ? value : JSON.parse(value)
         when 'DateTime', 'Time'
-          Time.parse(value)
+          (value.is_a? Time) ? value : Time.parse(value)
         else
           value
         end unless value.nil?
+
         @block ? @block.call(value) : value
       end
     end
 
+    class NullSerializer < Serializer
+      def from_string(value)
+        value
+      end
+    end
   end
 end

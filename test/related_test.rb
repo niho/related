@@ -23,7 +23,7 @@ class RelatedTest < MiniTest::Unit::TestCase
     node = Related::Node.create(:name => 'Example', :popularity => 12.3)
     assert node
     assert_equal 'Example', node.name
-    assert_equal 12.3, node.popularity
+    assert_equal '12.3', node.popularity
   end
 
   def test_can_create_node_and_then_find_it_again_using_its_id
@@ -246,7 +246,7 @@ class RelatedTest < MiniTest::Unit::TestCase
     assert nodes.include?(node3)
     assert nodes.include?(node4)
   end
-  
+
   def test_can_diff
     node1 = Related::Node.create
     node2 = Related::Node.create
