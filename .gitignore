@@ -3,3 +3,4 @@ Gemfile.lock
 .bundle
 *.rdb
 minitest/
+test/stdout
