@@ -3,7 +3,7 @@ require File.expand_path('test/test_helper')
 class RelatedTest < MiniTest::Unit::TestCase
 
   def setup
-    Related.redis.flushall
+    Related.flushall
   end
 
   def test_can_set_a_namespace_through_a_url_like_string

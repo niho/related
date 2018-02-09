@@ -8,7 +8,7 @@ end
 class FollowerTest < MiniTest::Unit::TestCase
 
   def setup
-    Related.redis.flushall
+    Related.flushall
     @user1 = User.create
     @user2 = User.create
   end

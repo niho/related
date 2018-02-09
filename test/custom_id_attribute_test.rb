@@ -8,7 +8,7 @@ class CustomIdAttribute < ActiveModel::TestCase
   end
 
   def setup
-    Related.redis.flushall
+    Related.flushall
   end
 
   def test_manually_set_id

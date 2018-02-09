@@ -32,7 +32,7 @@ class CustomNodeTest < ActiveModel::TestCase
   end
 
   def setup
-    Related.redis.flushall
+    Related.flushall
     CustomNode.flush
   end
 

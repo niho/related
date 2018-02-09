@@ -27,7 +27,7 @@ class ModelTest < ActiveModel::TestCase
   end
 
   def setup
-    Related.redis.flushall
+    Related.flushall
   end
 
   def teardown

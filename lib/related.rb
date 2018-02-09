@@ -51,4 +51,8 @@ module Related
     self.redis
   end
 
+  def flushall
+    self.redis.redis.flushall
+  end
+
 end
