@@ -1,3 +1,3 @@
 module Related
-  Version = VERSION = '0.6.5'
+  Version = VERSION = '0.6.6'
 end
